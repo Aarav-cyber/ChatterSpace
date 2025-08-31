@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, User, UserPlus, LogIn, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const LoginAuth = () => {
+  const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -30,49 +32,55 @@ const LoginAuth = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (isSignUp && !formData.name.trim()) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     if (isSignUp && !formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (isSignUp && formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
     return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
-      alert(isSignUp ? 'Account created successfully!' : 'Login successful!');
-      setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+
       if (isSignUp) {
+        alert('Account created successfully!');
+        setFormData({ name: '', email: '', password: '', confirmPassword: '' });
         setIsSignUp(false);
+      } else {
+        // For login, navigate to chat page after successful authentication
+        alert('Login successful!');
+        setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+        navigate('/chat');
       }
     } catch (error) {
       setErrors({ general: isSignUp ? 'Sign up failed. Please try again.' : 'Login failed. Please try again.' });
@@ -100,7 +108,7 @@ const LoginAuth = () => {
 
       <div className="relative w-full max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-8 items-center">
-          
+
           {/* Left Side - Welcome Text */}
           <div className="hidden lg:block text-white space-y-8">
             <div className="space-y-4">
@@ -116,7 +124,7 @@ const LoginAuth = () => {
                 Experience the next generation of authentication. Secure, fast, and beautiful.
               </p>
             </div>
-            
+
             <div className="space-y-6">
               <div className="flex items-center space-x-4">
                 <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
@@ -150,11 +158,10 @@ const LoginAuth = () => {
             <div className="bg-gray-800/50 backdrop-blur-xl rounded-3xl shadow-2xl p-10 border border-gray-700/50">
               {/* Header */}
               <div className="text-center mb-10">
-                <div className={`mx-auto w-20 h-20 bg-gradient-to-r rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 ${
-                  isSignUp 
-                    ? 'from-emerald-400 to-cyan-400' 
+                <div className={`mx-auto w-20 h-20 bg-gradient-to-r rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 ${isSignUp
+                    ? 'from-emerald-400 to-cyan-400'
                     : 'from-purple-400 to-pink-400'
-                }`}>
+                  }`}>
                   {isSignUp ? (
                     <UserPlus className="w-10 h-10 text-white" />
                   ) : (
@@ -193,11 +200,10 @@ const LoginAuth = () => {
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className={`block w-full pl-12 pr-4 py-4 bg-gray-700/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-200 ${
-                          errors.name 
-                            ? 'border-red-500' 
+                        className={`block w-full pl-12 pr-4 py-4 bg-gray-700/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-200 ${errors.name
+                            ? 'border-red-500'
                             : 'border-gray-600 hover:border-gray-500'
-                        }`}
+                          }`}
                         placeholder="Enter your full name"
                       />
                     </div>
@@ -222,15 +228,13 @@ const LoginAuth = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`block w-full pl-12 pr-4 py-4 bg-gray-700/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-200 ${
-                        isSignUp 
-                          ? 'focus:ring-emerald-400' 
+                      className={`block w-full pl-12 pr-4 py-4 bg-gray-700/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-200 ${isSignUp
+                          ? 'focus:ring-emerald-400'
                           : 'focus:ring-purple-400'
-                      } focus:border-transparent ${
-                        errors.email 
-                          ? 'border-red-500' 
+                        } focus:border-transparent ${errors.email
+                          ? 'border-red-500'
                           : 'border-gray-600 hover:border-gray-500'
-                      }`}
+                        }`}
                       placeholder="Enter your email"
                     />
                   </div>
@@ -254,15 +258,13 @@ const LoginAuth = () => {
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
-                      className={`block w-full pl-12 pr-12 py-4 bg-gray-700/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-200 ${
-                        isSignUp 
-                          ? 'focus:ring-emerald-400' 
+                      className={`block w-full pl-12 pr-12 py-4 bg-gray-700/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-all duration-200 ${isSignUp
+                          ? 'focus:ring-emerald-400'
                           : 'focus:ring-purple-400'
-                      } focus:border-transparent ${
-                        errors.password 
-                          ? 'border-red-500' 
+                        } focus:border-transparent ${errors.password
+                          ? 'border-red-500'
                           : 'border-gray-600 hover:border-gray-500'
-                      }`}
+                        }`}
                       placeholder="Enter your password"
                     />
                     <button
@@ -298,11 +300,10 @@ const LoginAuth = () => {
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
-                        className={`block w-full pl-12 pr-12 py-4 bg-gray-700/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-200 ${
-                          errors.confirmPassword 
-                            ? 'border-red-500' 
+                        className={`block w-full pl-12 pr-12 py-4 bg-gray-700/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-200 ${errors.confirmPassword
+                            ? 'border-red-500'
                             : 'border-gray-600 hover:border-gray-500'
-                        }`}
+                          }`}
                         placeholder="Confirm your password"
                       />
                       <button
@@ -351,11 +352,10 @@ const LoginAuth = () => {
                   type="button"
                   onClick={handleSubmit}
                   disabled={isLoading}
-                  className={`w-full flex justify-center py-4 px-6 border border-transparent rounded-xl shadow-lg text-base font-semibold text-white bg-gradient-to-r transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed ${
-                    isSignUp 
-                      ? 'from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 focus:ring-emerald-400' 
+                  className={`w-full flex justify-center py-4 px-6 border border-transparent rounded-xl shadow-lg text-base font-semibold text-white bg-gradient-to-r transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed ${isSignUp
+                      ? 'from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 focus:ring-emerald-400'
                       : 'from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 focus:ring-purple-400'
-                  }`}
+                    }`}
                 >
                   {isLoading ? (
                     <div className="flex items-center">
@@ -384,13 +384,12 @@ const LoginAuth = () => {
               <div className="mt-10 text-center">
                 <p className="text-gray-400">
                   {isSignUp ? "Already have an account?" : "Don't have an account?"}{' '}
-                  <button 
+                  <button
                     onClick={toggleMode}
-                    className={`font-semibold transition-colors hover:underline ${
-                      isSignUp 
-                        ? 'text-emerald-400 hover:text-emerald-300' 
+                    className={`font-semibold transition-colors hover:underline ${isSignUp
+                        ? 'text-emerald-400 hover:text-emerald-300'
                         : 'text-purple-400 hover:text-purple-300'
-                    }`}
+                      }`}
                   >
                     {isSignUp ? 'Sign in' : 'Sign up'}
                   </button>

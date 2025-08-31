@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/Navbar";
 
@@ -17,13 +17,24 @@ import FeatureRequestsPage from "./pages/FeatureRequestsPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import ChatPage from "./pages/ChatPage";
+import LoginAuth from "./pages/login";
 
 // Socket connection (change URL as needed)
-const socket = io("http://localhost:5000");
+const socket = io();
 
-const App = () => {
+// Wrapper component to use useNavigate hook
+const AppContent = () => {
+  const navigate = useNavigate();
   const [typingUsers, setTypingUsers] = useState(new Set());
   const [currentUser, setCurrentUser] = useState(null);
+
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
+
+  const handleSignupClick = () => {
+    navigate('/');
+  };
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -67,9 +78,9 @@ const App = () => {
   };
 
   return (
-    <Router>
+    <>
       <ScrollToTop />
-      <Navbar />
+      <Navbar onLoginClick={handleLoginClick} onSignupClick={handleSignupClick} />
 
       {/* Development-only Typing Indicator Overlay */}
       {process.env.NODE_ENV === "development" && (
@@ -102,8 +113,17 @@ const App = () => {
         <Route path="/feature-requests" element={<FeatureRequestsPage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsOfServicePage />} />
+        <Route path="/login" element={<LoginAuth />} />
         <Route path="/chat" element={<ChatPage socket={socket} />} />
       </Routes>
+    </>
+  );
+};
+
+const App = () => {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 };

@@ -369,7 +369,7 @@ const Footer = () => {
         <div className="absolute bottom-0 left-0 w-24 h-24 border-b-2 border-l-2 border-cyan-400/60 opacity-80" />
         <div className="absolute bottom-0 right-0 w-24 h-24 border-b-2 border-r-2 border-pink-400/60 opacity-80" />
 
-        <style jsx>{`
+        <style>{`
           @keyframes twinkle-3d {
             0%, 100% { opacity: 0.3; transform: translateZ(0px) scale(1); }
             50% { opacity: 1; transform: translateZ(20px) scale(1.5); }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Eye,
   EyeOff,
@@ -25,6 +25,24 @@ const AuthPage = ({ socket, typingUtils }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isSocketConnected, setIsSocketConnected] = useState(socket?.connected);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleConnect = () => setIsSocketConnected(true);
+    const handleDisconnect = () => setIsSocketConnected(false);
+
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+
+    // Set initial state
+    setIsSocketConnected(socket.connected);
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+    };
+  }, [socket]);
 
   const handleInputChange = (e) => {
     setErrorMessage("");
@@ -139,7 +157,8 @@ const AuthPage = ({ socket, typingUtils }) => {
     {
       icon: <MessageCircle className="w-6 h-6" />,
       title: "Real-time Messaging",
-      description: "Instant messaging with typing indicators and delivery status",
+      description:
+        "Instant messaging with typing indicators and delivery status",
     },
     {
       icon: <Users className="w-6 h-6" />,
@@ -173,10 +192,15 @@ const AuthPage = ({ socket, typingUtils }) => {
           <div className="max-w-md">
             <div className="flex items-center space-x-3 mb-8">
               <h1 className="text-3xl font-bold text-white">ChatterSpace</h1>
-              {socket && socket.connected && (
+              {isSocketConnected ? (
                 <div
                   className="w-3 h-3 bg-green-400 rounded-full animate-pulse"
                   title="Connected"
+                />
+              ) : (
+                <div
+                  className="w-3 h-3 bg-red-400 rounded-full animate-pulse"
+                  title="Disconnected"
                 />
               )}
             </div>
@@ -211,7 +235,6 @@ const AuthPage = ({ socket, typingUtils }) => {
         {/* Right Panel - Auth */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
           <div className="w-full max-w-md bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-white/20">
-
             {/* Error message */}
             {errorMessage && (
               <div className="mb-6 p-4 rounded-xl border border-red-500 bg-red-900/40 flex items-center justify-between">
@@ -232,7 +255,9 @@ const AuthPage = ({ socket, typingUtils }) => {
               <form onSubmit={handleForgotPassword}>
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-white text-sm mb-2">Email</label>
+                    <label className="block text-white text-sm mb-2">
+                      Email
+                    </label>
                     <input
                       type="email"
                       name="email"
@@ -320,7 +345,9 @@ const AuthPage = ({ socket, typingUtils }) => {
                       type="button"
                       className="absolute right-3 top-3 text-gray-400 hover:text-white"
                       onClick={() => setShowPassword(!showPassword)}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
                     >
                       {showPassword ? <EyeOff /> : <Eye />}
                     </button>
